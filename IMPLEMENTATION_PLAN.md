@@ -181,10 +181,10 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-14 — Verbose Logging
 
-- [ ] **Implement tracing setup** - Structured logging with tracing crate
-- [ ] **Implement -v flags** - INFO, DEBUG, TRACE levels
-- [ ] **Implement JSON log format** - SPECGEN_LOG_FORMAT=json support
-- [ ] **Ensure API key never logged** - Redact in all code paths
+- [x] **Implement tracing setup** - Structured logging with tracing crate
+- [x] **Implement -v flags** - INFO, DEBUG, TRACE levels
+- [x] **Implement JSON log format** - SPECGEN_LOG_FORMAT=json support
+- [x] **Ensure API key never logged** - Redact in all code paths
 - [ ] **Write integration tests** - Log output validation
 
 ---
@@ -218,6 +218,7 @@ These tasks must be completed first as other tasks depend on them.
 - [x] **Implement F-08 Iterative Refinement** - refine command with section targeting
 - [x] **Implement F-09 Diff and Merge Engine** - Semantic diff with user-edited preservation and conflict markers
 - [x] **Implement F-13 Pipe Mode** - --no-interview flag and piped input support
+- [x] **Implement F-14 Verbose Logging** - Tracing setup with -v flags and JSON format
 
 ---
 

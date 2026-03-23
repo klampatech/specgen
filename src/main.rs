@@ -9,6 +9,7 @@ mod diff;
 mod domain;
 mod error;
 mod interview;
+mod logging;
 mod session;
 mod spec;
 mod ui;
@@ -22,6 +23,10 @@ use clap::Parser;
 use domain::{detect_domain, needs_ai_fallback, Domain};
 use serde::Serialize;
 use spec::SpecSection;
+
+// Re-export SpecGenError for internal use
+use crate::error::SpecGenError;
+use crate::logging::{init as init_logging, verbosity_to_level};
 
 /// Status output for a single spec section.
 #[derive(Debug, Serialize)]
@@ -49,6 +54,9 @@ struct SpecStatus {
     about = "AI-powered CLI tool that interviews developers and generates comprehensive specifications"
 )]
 struct Args {
+    /// Verbose output (-v INFO, -vv DEBUG, -vvv TRACE).
+    #[arg(short, long, action = clap::ArgAction::Count)]
+    verbose: Option<u8>,
     /// Subcommand to execute.
     #[command(subcommand)]
     command: Command,
@@ -87,7 +95,7 @@ enum Command {
 }
 
 /// Validate the API key exists in environment.
-fn validate_api_key() -> Result<api_key::ApiKey, error::SpecGenError> {
+fn validate_api_key() -> Result<api_key::ApiKey, SpecGenError> {
     api_key::read_api_key_from_env()
 }
 
@@ -97,24 +105,24 @@ async fn run_new_command(
     client: Arc<dyn AiClient>,
     _api_key: api_key::ApiKey,
     no_interview: bool,
-) -> Result<(), error::SpecGenError> {
+) -> Result<(), SpecGenError> {
     // Get idea from user if not provided
     let idea = if idea.is_empty() {
         if no_interview {
             // Try to read from stdin (pipe mode)
             let piped_input = std::io::read_to_string(&mut std::io::stdin())
-                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+                .map_err(|e| SpecGenError::IoError(e.to_string()))?;
             piped_input.trim().to_string()
         } else {
             println!("\n=== SpecGen CLI ===\n");
             print!("Enter your project idea: ");
             std::io::stdout()
                 .flush()
-                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+                .map_err(|e| SpecGenError::IoError(e.to_string()))?;
             let mut input = String::new();
             std::io::stdin()
                 .read_line(&mut input)
-                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+                .map_err(|e| SpecGenError::IoError(e.to_string()))?;
             input.trim().to_string()
         }
     } else {
@@ -122,7 +130,7 @@ async fn run_new_command(
     };
 
     if idea.is_empty() {
-        return Err(error::SpecGenError::Unexpected(
+        return Err(SpecGenError::Unexpected(
             "Project idea cannot be empty".to_string(),
         ));
     }
@@ -155,7 +163,7 @@ async fn run_new_command(
         let mut input = String::new();
         std::io::stdin()
             .read_line(&mut input)
-            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+            .map_err(|e| SpecGenError::IoError(e.to_string()))?;
         let input = input.trim().to_lowercase();
         if input != "y" && input.is_empty() {
             domain = Domain::Unknown;
@@ -186,12 +194,12 @@ async fn run_new_command(
                 print!("Answer (or 'skip' to skip): ");
                 std::io::stdout()
                     .flush()
-                    .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+                    .map_err(|e| SpecGenError::IoError(e.to_string()))?;
 
                 let mut input = String::new();
                 std::io::stdin()
                     .read_line(&mut input)
-                    .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+                    .map_err(|e| SpecGenError::IoError(e.to_string()))?;
                 let input = input.trim().to_string();
 
                 if input.is_empty() || input.to_lowercase() == "skip" {
@@ -253,9 +261,9 @@ async fn run_new_command(
 
     // Save session to disk
     let project_dir = Utf8PathBuf::from_path_buf(
-        std::env::current_dir().map_err(|e| error::SpecGenError::IoError(e.to_string()))?,
+        std::env::current_dir().map_err(|e| SpecGenError::IoError(e.to_string()))?,
     )
-    .map_err(|_| error::SpecGenError::Unexpected("Invalid path".to_string()))?;
+    .map_err(|_| SpecGenError::Unexpected("Invalid path".to_string()))?;
     session::save_session(&project_dir, &session_data)?;
 
     println!("\n=== Spec Generation Complete ===\n");
@@ -269,7 +277,7 @@ async fn run_new_command(
 }
 
 /// Run the status command to show spec completeness.
-fn run_status_command(json_output: bool) -> Result<(), error::SpecGenError> {
+fn run_status_command(json_output: bool) -> Result<(), SpecGenError> {
     let output_dir = spec::get_default_output_dir();
     let sections = SpecSection::all();
 
@@ -311,7 +319,7 @@ fn run_status_command(json_output: bool) -> Result<(), error::SpecGenError> {
     if json_output {
         // JSON output
         let json = serde_json::to_string_pretty(&status)
-            .map_err(|e| error::SpecGenError::Unexpected(e.to_string()))?;
+            .map_err(|e| SpecGenError::Unexpected(e.to_string()))?;
         println!("{json}");
     } else {
         // Human-readable output
@@ -336,7 +344,7 @@ fn run_status_command(json_output: bool) -> Result<(), error::SpecGenError> {
 }
 
 /// Run the diff command to show changes between generated and existing specs.
-fn run_diff_command() -> Result<(), error::SpecGenError> {
+fn run_diff_command() -> Result<(), SpecGenError> {
     let output_dir = spec::get_default_output_dir();
     let sections = SpecSection::all();
 
@@ -362,15 +370,15 @@ async fn run_refine_command(
     instruction: String,
     sections: Option<String>,
     client: Arc<dyn AiClient>,
-) -> Result<(), error::SpecGenError> {
+) -> Result<(), SpecGenError> {
     // Load session data to get context
     let project_dir = Utf8PathBuf::from_path_buf(std::env::current_dir()?)
-        .map_err(|_| error::SpecGenError::Unexpected("Invalid path".to_string()))?;
+        .map_err(|_| SpecGenError::Unexpected("Invalid path".to_string()))?;
 
     let session = match session::load_session(&project_dir) {
         Ok(s) => s,
         Err(e) => {
-            return Err(error::SpecGenError::Unexpected(format!(
+            return Err(SpecGenError::Unexpected(format!(
                 "No session found. Run 'specgen new' first. Error: {e}"
             )));
         }
@@ -418,7 +426,7 @@ async fn run_refine_command(
 }
 
 /// Run the export command to bundle all specs into a single file.
-fn run_export_command() -> Result<(), error::SpecGenError> {
+fn run_export_command() -> Result<(), SpecGenError> {
     let output_dir = spec::get_default_output_dir();
     let sections = SpecSection::all();
     let mut all_content = String::new();
@@ -448,8 +456,13 @@ fn run_export_command() -> Result<(), error::SpecGenError> {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), error::SpecGenError> {
+async fn main() -> Result<(), SpecGenError> {
     let args = Args::parse();
+
+    // Initialize logging based on verbosity
+    let level = verbosity_to_level(args.verbose.unwrap_or(0));
+    let log_format = std::env::var("SPECGEN_LOG_FORMAT").unwrap_or_default();
+    init_logging(level, &log_format);
 
     // Parse command first to determine if we need API key
     let needs_api_key = matches!(args.command, Command::New { .. } | Command::Refine { .. });
@@ -473,9 +486,7 @@ async fn main() -> Result<(), error::SpecGenError> {
                 return Ok(());
             }
             _ => {
-                return Err(error::SpecGenError::Unexpected(
-                    "Unexpected command".to_string(),
-                ));
+                return Err(SpecGenError::Unexpected("Unexpected command".to_string()));
             }
         }
     };
