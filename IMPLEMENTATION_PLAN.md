@@ -139,11 +139,11 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-09 — Diff and Merge Engine
 
-- [ ] **Implement semantic diff** - Using similar crate with patience algorithm
-- [ ] **Implement user-edited preservation** - Detect and preserve <!-- user-edited --> markers
-- [ ] **Implement conflict marker injection** - Wrap conflicts in <!-- CONFLICT --> markers
-- [ ] **Implement merge output** - Compose valid Markdown output
-- [ ] **Write unit tests** - User-edited sections preserved, conflict markers correct
+- [x] **Implement semantic diff** - Using similar crate with patience algorithm
+- [x] **Implement user-edited preservation** - Detect and preserve <!-- user-edited --> markers
+- [x] **Implement conflict marker injection** - Wrap conflicts in <!-- CONFLICT --> markers
+- [x] **Implement merge output** - Compose valid Markdown output
+- [x] **Write unit tests** - User-edited sections preserved, conflict markers correct
 
 ### F-10 — Session Persistence & Resume
 

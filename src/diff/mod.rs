@@ -68,10 +68,12 @@ pub fn extract_user_edits(content: &str) -> Vec<(String, String)> {
     let mut edits = Vec::new();
     let marker = USER_EDITED_MARKER;
 
-    // Simple approach: split by marker and extract sections
+    // Split by marker and extract content between pairs of markers
+    // Format: content <!-- user-edited --> EDITED_CONTENT <!-- user-edited --> content
     let parts: Vec<&str> = content.split(marker).collect();
 
     // If we have parts between markers, extract them
+    // Parts at odd indices (1, 3, 5...) are the content between markers
     if parts.len() > 1 {
         for (i, part) in parts.iter().enumerate() {
             if i % 2 == 1 && !part.trim().is_empty() {
@@ -202,5 +204,46 @@ mod tests {
         let summary = get_diff_summary(old, new);
         assert!(summary.contains("+"));
         assert!(summary.contains("-"));
+    }
+
+    #[test]
+    fn test_merge_preserves_user_edits() {
+        let old = "Some content <!-- user-edited --> my custom content";
+        let new = "Some content <!-- user-edited --> new content";
+        let result = merge(old, new);
+        assert!(result.has_changes);
+        assert!(result.merged_content.contains("my custom content"));
+    }
+
+    #[test]
+    fn test_extract_user_edits_multiple() {
+        // When markers are consecutive, content between each pair is extracted
+        let content = "Start <!-- user-edited --> first edit <!-- user-edited --> middle <!-- user-edited --> last";
+        let edits = extract_user_edits(content);
+        // Split produces: ["Start ", " first edit ", " middle ", " last"]
+        // Odd indices (1, 3) have content: " first edit " and " last"
+        assert_eq!(edits.len(), 2);
+    }
+
+    #[test]
+    fn test_create_conflict_format() {
+        let new_content = "New version";
+        let old_content = "Old version";
+        let conflict = create_conflict(new_content, old_content);
+        assert!(conflict.contains(CONFLICT_START));
+        assert!(conflict.contains(CONFLICT_AI));
+        assert!(conflict.contains(CONFLICT_EXISTING));
+        assert!(conflict.contains(CONFLICT_END));
+        assert!(conflict.contains("New version"));
+        assert!(conflict.contains("Old version"));
+    }
+
+    #[test]
+    fn test_merge_no_user_edits() {
+        let old = "Original content";
+        let new = "New content";
+        let result = merge(old, new);
+        assert!(result.has_changes);
+        assert_eq!(result.merged_content, "New content");
     }
 }
