@@ -2026,9 +2026,11 @@ name = "specgen"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "bytes",
  "camino",
  "clap",
  "crossterm",
+ "futures",
  "indicatif",
  "insta",
  "miette",

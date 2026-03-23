@@ -3,6 +3,7 @@
 //! A command-line tool that interviews developers and generates comprehensive
 //! specifications for software projects using MiniMax AI.
 
+mod ai;
 mod api_key;
 mod domain;
 mod error;

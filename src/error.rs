@@ -86,3 +86,15 @@ impl From<std::io::Error> for SpecGenError {
         SpecGenError::IoError(err.to_string())
     }
 }
+
+impl From<reqwest::Error> for SpecGenError {
+    fn from(err: reqwest::Error) -> Self {
+        if err.is_connect() {
+            SpecGenError::NetworkError(format!("Connection failed: {err}"))
+        } else if err.is_timeout() {
+            SpecGenError::NetworkError(format!("Request timed out: {err}"))
+        } else {
+            SpecGenError::NetworkError(err.to_string())
+        }
+    }
+}
