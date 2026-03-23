@@ -160,17 +160,17 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-11 — Status Command
 
-- [ ] **Implement status command** - List all spec files with existence/missing
-- [ ] **Implement completeness score** - Calculate 0-100% based on generated sections
-- [ ] **Implement JSON output** - --json flag for machine-readable output
-- [ ] **Write E2E tests** - Status output validation
+- [x] **Implement status command** - List all spec files with existence/missing
+- [x] **Implement completeness score** - Calculate 0-100% based on generated sections
+- [x] **Implement JSON output** - --json flag for machine-readable output
+- [x] **Write E2E tests** - Status output validation
 
 ### F-12 — Export Command
 
-- [ ] **Implement export command** - Bundle all sections into single SPEC.md
-- [ ] **Implement TOC generation** - Table of contents with anchor links
-- [ ] **Implement metadata block** - Include project name, date, version
-- [ ] **Write E2E tests** - Export bundle validation
+- [x] **Implement export command** - Bundle all sections into single SPEC.md
+- [x] **Implement TOC generation** - Table of contents with anchor links
+- [x] **Implement metadata block** - Include project name, date, version
+- [x] **Write E2E tests** - Export bundle validation
 
 ### F-13 — Non-interactive / Pipe Mode
 
@@ -212,6 +212,8 @@ These tasks must be completed first as other tasks depend on them.
 - [x] **Analyze all specification files** - Reviewed 10 spec documents and created gap analysis
 - [x] **Explore current codebase** - Verified src/ and tests/ are empty
 - [x] **Update IMPLEMENTATION_PLAN.md** - Added analysis summary and prioritization
+- [x] **Implement F-11 Status Command** - Implemented status command with completeness score and JSON output
+- [x] **Implement F-12 Export Command** - Implemented export command with TOC generation and metadata block
 
 ---
 

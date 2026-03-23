@@ -49,9 +49,8 @@ pub fn write_spec_file(
     file.flush()?;
 
     // Atomically rename temp file to target
-    file.persist(path).map_err(|e| {
-        SpecGenError::IoError(format!("Failed to persist temp file: {}", e))
-    })?;
+    file.persist(path)
+        .map_err(|e| SpecGenError::IoError(format!("Failed to persist temp file: {}", e)))?;
 
     Ok(())
 }
@@ -181,8 +180,7 @@ mod tests {
     #[test]
     fn test_write_all_sections() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = Utf8PathBuf::from_path_buf(temp_dir.path().to_path_buf())
-            .unwrap();
+        let output_dir = Utf8PathBuf::from_path_buf(temp_dir.path().to_path_buf()).unwrap();
 
         let sections = vec![
             ("requirements", "# Requirements\n\nFR-001: Test requirement"),
