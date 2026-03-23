@@ -17,6 +17,7 @@ use std::io::Write;
 use std::sync::Arc;
 
 use ai::client::{AiClient, MinimaxClient};
+use camino::Utf8PathBuf;
 use clap::Parser;
 use domain::{detect_domain, needs_ai_fallback, Domain};
 use serde::Serialize;
@@ -190,6 +191,22 @@ async fn run_new_command(
         answers: session.answers.clone(),
     };
 
+    // Save interview entries to session
+    let mut session_data = session::Session::new(idea.clone(), domain.to_string());
+    for answer in &session.answers {
+        let question_text = session
+            .questions
+            .iter()
+            .find(|q| q.id == answer.question_id)
+            .map(|q| q.text.clone())
+            .unwrap_or_default();
+        session_data.add_interview_entry(
+            question_text,
+            answer.text.clone(),
+            answer.skipped || answer.assumed,
+        );
+    }
+
     // Generate all spec sections concurrently
     let sections = spec::generate_all_sections(client, context).await?;
 
@@ -201,6 +218,19 @@ async fn run_new_command(
         .collect();
 
     let written_paths = spec::write_all_sections(&section_tuples, &output_dir, false)?;
+
+    // Mark sections as generated and save session
+    for (section, _) in &sections {
+        session_data.mark_section_generated(section.filename());
+    }
+
+    // Save session to disk
+    let project_dir = Utf8PathBuf::from_path_buf(
+        std::env::current_dir()
+            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?,
+    )
+    .map_err(|_| error::SpecGenError::Unexpected("Invalid path".to_string()))?;
+    session::save_session(&project_dir, &session_data)?;
 
     println!("\n=== Spec Generation Complete ===\n");
     println!("Generated {} specification files:", written_paths.len());

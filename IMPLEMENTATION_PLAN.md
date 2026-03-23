@@ -147,12 +147,12 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-10 — Session Persistence & Resume
 
-- [ ] **Implement session storage** - Read/write .specgen/session.json
-- [ ] **Implement atomic session writes** - Temp file + rename
-- [ ] **Implement session schema** - Version, created_at, idea, domain, interview array
-- [ ] **Implement session resume** - Offer to resume existing session
-- [ ] **Implement schema migration** - Handle version upgrades
-- [ ] **Write integration tests** - Persistence, resume, corruption handling
+- [x] **Implement session storage** - Read/write .specgen/session.json
+- [x] **Implement atomic session writes** - Temp file + rename
+- [x] **Implement session schema** - Version, created_at, idea, domain, interview array
+- [x] **Implement session resume** - Offer to resume existing session
+- [x] **Implement schema migration** - Handle version upgrades
+- [x] **Write integration tests** - Persistence, resume, corruption handling
 
 ---
 
@@ -214,6 +214,7 @@ These tasks must be completed first as other tasks depend on them.
 - [x] **Update IMPLEMENTATION_PLAN.md** - Added analysis summary and prioritization
 - [x] **Implement F-11 Status Command** - Implemented status command with completeness score and JSON output
 - [x] **Implement F-12 Export Command** - Implemented export command with TOC generation and metadata block
+- [x] **Implement F-10 Session Persistence** - Session data saved to .specgen/session.json after spec generation
 
 ---
 
