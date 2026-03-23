@@ -191,19 +191,19 @@ These tasks must be completed first as other tasks depend on them.
 
 ## CI/CD & DevOps
 
-- [ ] **Create .github/workflows/ci.yml** - PR pipeline with test, clippy, fmt, audit
-- [ ] **Create .github/workflows/release.yml** - Release pipeline with cross-compile
-- [ ] **Setup cargo-llvm-cov** - Coverage gate (80% line, 70% branch)
-- [ ] **Setup cargo-audit** - Security scanning in CI
+- [x] **Create .github/workflows/ci.yml** - PR pipeline with test, clippy, fmt, audit
+- [x] **Create .github/workflows/release.yml** - Release pipeline with cross-compile
+- [x] **Setup cargo-llvm-cov** - Coverage gate (80% line, 70% branch)
+- [x] **Setup cargo-audit** - Security scanning in CI
 
 ---
 
 ## Testing Infrastructure
 
-- [ ] **Create test fixtures** - Idea inputs and API response fixtures
-- [ ] **Setup wiremock** - Mock MiniMax API for integration tests
-- [ ] **Setup insta** - Snapshot testing
-- [ ] **Setup proptest** - Property-based testing
+- [x] **Create test fixtures** - Idea inputs and API response fixtures
+- [x] **Setup wiremock** - Mock MiniMax API for integration tests
+- [x] **Setup insta** - Snapshot testing
+- [x] **Setup proptest** - Property-based testing
 
 ---
 
