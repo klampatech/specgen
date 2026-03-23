@@ -132,10 +132,10 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-08 — Iterative Refinement
 
-- [ ] **Implement refinement classifier** - Identify target sections from instruction
-- [ ] **Implement targeted regeneration** - Only regenerate targeted sections
-- [ ] **Implement refinement context** - Include original content + interview + instruction
-- [ ] **Write integration tests** - Section targeting, non-targeted sections unchanged
+- [x] **Implement refinement classifier** - Identify target sections from instruction
+- [x] **Implement targeted regeneration** - Only regenerate targeted sections
+- [x] **Implement refinement context** - Include original content + interview + instruction
+- [x] **Write integration tests** - Section targeting, non-targeted sections unchanged
 
 ### F-09 — Diff and Merge Engine
 
@@ -215,6 +215,7 @@ These tasks must be completed first as other tasks depend on them.
 - [x] **Implement F-11 Status Command** - Implemented status command with completeness score and JSON output
 - [x] **Implement F-12 Export Command** - Implemented export command with TOC generation and metadata block
 - [x] **Implement F-10 Session Persistence** - Session data saved to .specgen/session.json after spec generation
+- [x] **Implement F-08 Iterative Refinement** - refine command with section targeting
 
 ---
 

@@ -7,7 +7,7 @@
 
 mod output;
 
-pub use output::{get_default_output_dir, write_all_sections};
+pub use output::{get_default_output_dir, write_all_sections, write_spec_file};
 
 use crate::ai::client::AiClient;
 use crate::ai::models::{ChatRequest, Message};
@@ -58,6 +58,50 @@ impl SpecSection {
             SpecSection::AcceptanceCriteria,
             SpecSection::TestingStrategy,
         ]
+    }
+
+    /// Parse section names from a comma-separated string.
+    pub fn parse_sections(input: &str) -> Result<Vec<SpecSection>, SpecGenError> {
+        let input_lower = input.to_lowercase();
+        let names: Vec<&str> = input_lower.split(',').map(|s| s.trim()).collect();
+
+        let mut sections = Vec::new();
+        for name in names {
+            let section = match name {
+                "requirements" | "requirement" => Some(SpecSection::Requirements),
+                "architecture" => Some(SpecSection::Architecture),
+                "features" | "feature" => Some(SpecSection::Features),
+                "tdd" | "tdd_strategy" | "tdd-strategy" => Some(SpecSection::TddStrategy),
+                "sequence" | "sequence_diagrams" | "sequence-diagrams" => {
+                    Some(SpecSection::SequenceDiagrams)
+                }
+                "design" | "design_scheme" | "design-scheme" => Some(SpecSection::DesignScheme),
+                "security" | "security_strategy" | "security-strategy" => {
+                    Some(SpecSection::SecurityStrategy)
+                }
+                "sdlc" => Some(SpecSection::Sdlc),
+                "acceptance" | "acceptance_criteria" | "acceptance-criteria" => {
+                    Some(SpecSection::AcceptanceCriteria)
+                }
+                "testing" | "testing_strategy" | "testing-strategy" => {
+                    Some(SpecSection::TestingStrategy)
+                }
+                "all" => return Ok(Self::all().to_vec()),
+                _ => None,
+            };
+
+            match section {
+                Some(s) => sections.push(s),
+                None => {
+                    return Err(SpecGenError::Unexpected(format!(
+                        "Unknown section: '{}'. Valid sections: requirements, architecture, features, tdd, sequence, design, security, sdlc, acceptance, testing, all",
+                        name
+                    )));
+                }
+            }
+        }
+
+        Ok(sections)
     }
 
     /// Get the filename for this section.
@@ -152,8 +196,27 @@ pub async fn generate_section(
     section: SpecSection,
     context: InterviewContext,
 ) -> Result<(SpecSection, String), SpecGenError> {
-    let system_prompt = build_system_prompt(section, &context);
-    let user_prompt = build_user_prompt(section, &context);
+    generate_section_with_instruction(client, section, context, None).await
+}
+
+/// Generate a single spec section with refinement instruction.
+pub async fn generate_section_with_instruction(
+    client: Arc<dyn AiClient>,
+    section: SpecSection,
+    context: InterviewContext,
+    instruction: Option<String>,
+) -> Result<(SpecSection, String), SpecGenError> {
+    let (system_prompt, user_prompt) = if let Some(ref inst) = instruction {
+        (
+            build_refinement_prompt(section, &context, inst),
+            build_refinement_user_prompt(section, &context, inst),
+        )
+    } else {
+        (
+            build_system_prompt(section, &context),
+            build_user_prompt(section, &context),
+        )
+    };
 
     let request = ChatRequest::new_spec_request(vec![
         Message::system(system_prompt),
@@ -165,6 +228,38 @@ pub async fn generate_section(
     let content = post_process_response(&section, &response, &context);
 
     Ok((section, content))
+}
+
+/// Build system prompt for refining an existing section.
+fn build_refinement_prompt(
+    section: SpecSection,
+    _context: &InterviewContext,
+    instruction: &str,
+) -> String {
+    format!(
+        "You are refining the '{}' section of a specification document. \
+        The user has provided specific instructions for changes:\n\n{}\n\n\
+        Generate an improved version that incorporates their feedback while \
+        maintaining consistency with other sections.",
+        section.display_name(),
+        instruction
+    )
+}
+
+/// Build user prompt for refining a section.
+fn build_refinement_user_prompt(
+    section: SpecSection,
+    context: &InterviewContext,
+    instruction: &str,
+) -> String {
+    format!(
+        "Refine the '{}' section based on the following instruction:\n\n{}\n\n\
+        Original project: {}\nDomain: {}",
+        section.display_name(),
+        instruction,
+        context.idea,
+        context.domain.display_name()
+    )
 }
 
 /// Build the system prompt for a specific section.

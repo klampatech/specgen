@@ -67,6 +67,9 @@ enum Command {
     Refine {
         /// Instruction for refinement.
         instruction: String,
+        /// Specific sections to refine (comma-separated).
+        #[arg(long, short)]
+        sections: Option<String>,
     },
     /// Show specification status.
     Status {
@@ -226,8 +229,7 @@ async fn run_new_command(
 
     // Save session to disk
     let project_dir = Utf8PathBuf::from_path_buf(
-        std::env::current_dir()
-            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?,
+        std::env::current_dir().map_err(|e| error::SpecGenError::IoError(e.to_string()))?,
     )
     .map_err(|_| error::SpecGenError::Unexpected("Invalid path".to_string()))?;
     session::save_session(&project_dir, &session_data)?;
@@ -331,6 +333,66 @@ fn run_diff_command() -> Result<(), error::SpecGenError> {
     Ok(())
 }
 
+/// Run the refine command to regenerate specific sections.
+async fn run_refine_command(
+    instruction: String,
+    sections: Option<String>,
+    client: Arc<dyn AiClient>,
+) -> Result<(), error::SpecGenError> {
+    // Load session data to get context
+    let project_dir = Utf8PathBuf::from_path_buf(std::env::current_dir()?)
+        .map_err(|_| error::SpecGenError::Unexpected("Invalid path".to_string()))?;
+
+    let session = match session::load_session(&project_dir) {
+        Ok(s) => s,
+        Err(e) => {
+            return Err(error::SpecGenError::Unexpected(format!(
+                "No session found. Run 'specgen new' first. Error: {e}"
+            )));
+        }
+    };
+
+    // Determine which sections to refine
+    let sections_to_refine = if let Some(s) = sections {
+        spec::SpecSection::parse_sections(&s)?
+    } else {
+        spec::SpecSection::all().to_vec()
+    };
+
+    println!("Refining {} section(s)...", sections_to_refine.len());
+
+    // Build interview context from session
+    let domain = domain::Domain::from_string(&session.domain);
+    let context = spec::InterviewContext {
+        idea: session.idea,
+        domain,
+        answers: Vec::new(), // Not needed for refinement
+    };
+
+    // Generate refined sections
+    for section in &sections_to_refine {
+        println!("Regenerating {}...", section.display_name());
+
+        let result = spec::generate_section_with_instruction(
+            Arc::clone(&client),
+            *section,
+            context.clone(),
+            Some(instruction.clone()),
+        )
+        .await?;
+
+        // Write the refined section (with overwrite)
+        let output_dir = spec::get_default_output_dir();
+        let file_path = output_dir.join(section.filename());
+        spec::write_spec_file(&file_path, &result.1, true)?;
+
+        println!("  Updated: {}", section.filename());
+    }
+
+    println!("\nRefinement complete!");
+    Ok(())
+}
+
 /// Run the export command to bundle all specs into a single file.
 fn run_export_command() -> Result<(), error::SpecGenError> {
     let output_dir = spec::get_default_output_dir();
@@ -366,7 +428,7 @@ async fn main() -> Result<(), error::SpecGenError> {
     let args = Args::parse();
 
     // Parse command first to determine if we need API key
-    let needs_api_key = matches!(args.command, Command::New { .. });
+    let needs_api_key = matches!(args.command, Command::New { .. } | Command::Refine { .. });
 
     // Only validate API key for commands that need it
     let api_key = if needs_api_key {
@@ -402,9 +464,11 @@ async fn main() -> Result<(), error::SpecGenError> {
         Command::New { idea } => {
             run_new_command(idea, client, api_key).await?;
         }
-        Command::Refine { instruction } => {
-            println!("Refining with instruction: {instruction}");
-            // TODO: Implement refine command
+        Command::Refine {
+            instruction,
+            sections,
+        } => {
+            run_refine_command(instruction, sections, client).await?;
         }
         _ => {}
     }

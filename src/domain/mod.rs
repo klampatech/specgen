@@ -73,6 +73,24 @@ impl Domain {
             Domain::Unknown,
         ]
     }
+
+    /// Parse domain from string (case-insensitive).
+    pub fn from_string(s: &str) -> Self {
+        let lower = s.to_lowercase();
+        match lower.as_str() {
+            "web application" | "webapp" | "web" => Domain::WebApp,
+            "rest api" | "restapi" | "rest" => Domain::RestApi,
+            "graphql api" | "graphqlapi" | "graphql" => Domain::GraphQLApi,
+            "command-line interface" | "cli" => Domain::Cli,
+            "mobile application" | "mobileapp" | "mobile" => Domain::MobileApp,
+            "data pipeline" | "datapipeline" => Domain::DataPipeline,
+            "machine learning system" | "machinelearning" | "ml" => Domain::MachineLearning,
+            "embedded system" | "embeddedsystem" => Domain::EmbeddedSystem,
+            "game development" | "gamedev" | "game" => Domain::GameDev,
+            "desktop application" | "desktopapp" | "desktop" => Domain::DesktopApp,
+            _ => Domain::Unknown,
+        }
+    }
 }
 
 impl std::fmt::Display for Domain {
