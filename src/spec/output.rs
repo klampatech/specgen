@@ -43,7 +43,7 @@ pub fn write_spec_file(
     }
 
     // Write to temporary file first
-    let temp_path = path.with_extension("tmp");
+    let _temp_path = path.with_extension("tmp");
     let mut file = tempfile::NamedTempFile::new()?;
     file.write_all(content.as_bytes())?;
     file.flush()?;

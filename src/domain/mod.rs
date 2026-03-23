@@ -300,8 +300,7 @@ Respond ONLY with the domain name, nothing else.";
 }
 
 /// Prompt user to confirm or change the detected domain.
-///
-/// Returns the final domain (either confirmed or user-selected).
+#[allow(dead_code)]
 pub fn confirm_domain(detected: Domain) -> Domain {
     println!("\nDetected domain: {}", detected.display_name());
     println!("Is this correct? (y/n): ");

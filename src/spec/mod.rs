@@ -7,7 +7,7 @@
 
 mod output;
 
-pub use output::{get_default_output_dir, write_all_sections, write_spec_file};
+pub use output::{get_default_output_dir, write_all_sections};
 
 use crate::ai::client::AiClient;
 use crate::ai::models::{ChatRequest, Message};

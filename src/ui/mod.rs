@@ -6,30 +6,12 @@
 #![allow(dead_code)]
 #![allow(clippy::uninlined_format_args)]
 
+pub mod theme;
+
 use crate::error::SpecGenError;
 
-/// UI theme colors - defined in ui/theme.rs as typed constants.
-pub mod theme {
-    /// Primary color (blue).
-    pub const PRIMARY: &str = "#3B82F6";
-    /// Secondary color (gray).
-    pub const SECONDARY: &str = "#6B7280";
-    /// Accent color (green).
-    pub const ACCENT: &str = "#10B981";
-    /// Error color (red).
-    pub const ERROR: &str = "#EF4444";
-    /// Warning color (yellow).
-    pub const WARNING: &str = "#F59E0B";
-    /// Background color.
-    pub const BACKGROUND: &str = "#1F2937";
-    /// Foreground color.
-    pub const FOREGROUND: &str = "#F9FAFB";
-
-    /// Get the color scheme as a tuple.
-    pub fn colors() -> (&'static str, &'static str, &'static str, &'static str) {
-        (PRIMARY, SECONDARY, ACCENT, ERROR)
-    }
-}
+/// TUI application result type.
+pub type TuiResult<T> = Result<T, SpecGenError>;
 
 /// Application state for the TUI.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -163,10 +145,8 @@ mod tests {
 
     #[test]
     fn test_theme_colors() {
-        let (primary, secondary, accent, error) = theme::colors();
-        assert!(!primary.is_empty());
-        assert!(!secondary.is_empty());
-        assert!(!accent.is_empty());
-        assert!(!error.is_empty());
+        // Test that theme colors are accessible
+        let primary = theme::accent_primary();
+        assert!(matches!(primary, ratatui::style::Color::Rgb(_, _, _)));
     }
 }

@@ -64,7 +64,7 @@ fn validate_api_key() -> Result<api_key::ApiKey, error::SpecGenError> {
 async fn run_new_command(
     idea: String,
     client: Arc<dyn AiClient>,
-    api_key: api_key::ApiKey,
+    _api_key: api_key::ApiKey,
 ) -> Result<(), error::SpecGenError> {
     // Get idea from user if not provided
     let idea = if idea.is_empty() {

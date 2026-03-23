@@ -121,7 +121,7 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-07 — Ratatui Rich UI
 
-- [ ] **Implement UI theme constants** - Colors defined in ui/theme.rs
+- [x] **Implement UI theme constants** - Colors defined in ui/theme.rs
 - [ ] **Implement main TUI app** - Three-panel layout as specified
 - [ ] **Implement interview panel** - Question display + answer input
 - [ ] **Implement progress panel** - Per-section progress bars
