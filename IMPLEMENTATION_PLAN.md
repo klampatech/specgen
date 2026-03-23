@@ -122,13 +122,13 @@ These tasks must be completed first as other tasks depend on them.
 ### F-07 — Ratatui Rich UI
 
 - [x] **Implement UI theme constants** - Colors defined in ui/theme.rs
-- [ ] **Implement main TUI app** - Three-panel layout as specified
-- [ ] **Implement interview panel** - Question display + answer input
-- [ ] **Implement progress panel** - Per-section progress bars
-- [ ] **Implement preview panel** - Syntax-highlighted Markdown preview
-- [ ] **Implement footer bar** - Key bindings display
-- [ ] **Handle NO_COLOR and TERM=dumb** - Graceful degradation to plain text
-- [ ] **Handle terminal resize** - No crashes on resize events
+- [x] **Implement main TUI app** - Three-panel layout as specified
+- [x] **Implement interview panel** - Question display + answer input
+- [x] **Implement progress panel** - Per-section progress bars
+- [x] **Implement preview panel** - Syntax-highlighted Markdown preview
+- [x] **Implement footer bar** - Key bindings display
+- [x] **Handle NO_COLOR and TERM=dumb** - Graceful degradation to plain text
+- [x] **Handle terminal resize** - No crashes on resize events
 
 ### F-08 — Iterative Refinement
 

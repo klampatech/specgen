@@ -70,19 +70,25 @@ async fn run_new_command(
     let idea = if idea.is_empty() {
         println!("\n=== SpecGen CLI ===\n");
         print!("Enter your project idea: ");
-        std::io::stdout().flush().map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+        std::io::stdout()
+            .flush()
+            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
         let mut input = String::new();
-        std::io::stdin().read_line(&mut input).map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+        std::io::stdin()
+            .read_line(&mut input)
+            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
         input.trim().to_string()
     } else {
         idea
     };
 
     if idea.is_empty() {
-        return Err(error::SpecGenError::Unexpected("Project idea cannot be empty".to_string()));
+        return Err(error::SpecGenError::Unexpected(
+            "Project idea cannot be empty".to_string(),
+        ));
     }
 
-    println!("\nAnalyzing project: {}\n", idea);
+    println!("\nAnalyzing project: {idea}\n");
 
     // Detect domain using keyword-based detection
     let mut domain = detect_domain(&idea);
@@ -99,7 +105,7 @@ async fn run_new_command(
                 }
             }
             Err(e) => {
-                println!("AI classification failed: {}, using Unknown", e);
+                println!("AI classification failed: {e}, using Unknown");
             }
         }
     }
@@ -107,7 +113,9 @@ async fn run_new_command(
     // Confirm domain with user
     println!("\nIs this correct? (y/n): ");
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+    std::io::stdin()
+        .read_line(&mut input)
+        .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
     let input = input.trim().to_lowercase();
     if input != "y" && input.is_empty() {
         domain = Domain::Unknown;
@@ -125,10 +133,14 @@ async fn run_new_command(
         if let Some(question) = session.current_question() {
             println!("[Question {}/{}] {}\n", current, total, question.text);
             print!("Answer (or 'skip' to skip): ");
-            std::io::stdout().flush().map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+            std::io::stdout()
+                .flush()
+                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
 
             let mut input = String::new();
-            std::io::stdin().read_line(&mut input).map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+            std::io::stdin()
+                .read_line(&mut input)
+                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
             let input = input.trim().to_string();
 
             if input.is_empty() || input.to_lowercase() == "skip" {
@@ -139,7 +151,7 @@ async fn run_new_command(
                 let answer = interview::answers::Answer::new(question.id, input);
                 match session.submit_answer(answer) {
                     Ok(_) => println!("Answer recorded.\n"),
-                    Err(e) => println!("Invalid answer: {}\n", e),
+                    Err(e) => println!("Invalid answer: {e}\n"),
                 }
             }
         }
@@ -169,9 +181,9 @@ async fn run_new_command(
     println!("\n=== Spec Generation Complete ===\n");
     println!("Generated {} specification files:", written_paths.len());
     for path in &written_paths {
-        println!("  - {}", path);
+        println!("  - {path}");
     }
-    println!("\nAll specs saved to: {}\n", output_dir);
+    println!("\nAll specs saved to: {output_dir}\n");
 
     Ok(())
 }

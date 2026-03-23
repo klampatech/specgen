@@ -288,7 +288,7 @@ identify the most appropriate domain from this list: WebApp, RestApi, GraphQLApi
 MobileApp, DataPipeline, MachineLearning, EmbeddedSystem, GameDev, DesktopApp. \
 Respond ONLY with the domain name, nothing else.";
 
-    let user_prompt = format!("Classify this project: {}", idea);
+    let user_prompt = format!("Classify this project: {idea}");
 
     let request = ChatRequest::new_spec_request(vec![
         Message::system(system_prompt),
