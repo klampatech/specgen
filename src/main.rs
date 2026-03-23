@@ -62,6 +62,9 @@ enum Command {
         /// The project idea description.
         #[arg(default_value = "")]
         idea: String,
+        /// Skip interactive interview, use AI-assumed answers.
+        #[arg(long, short)]
+        no_interview: bool,
     },
     /// Refine existing specification.
     Refine {
@@ -93,19 +96,27 @@ async fn run_new_command(
     idea: String,
     client: Arc<dyn AiClient>,
     _api_key: api_key::ApiKey,
+    no_interview: bool,
 ) -> Result<(), error::SpecGenError> {
     // Get idea from user if not provided
     let idea = if idea.is_empty() {
-        println!("\n=== SpecGen CLI ===\n");
-        print!("Enter your project idea: ");
-        std::io::stdout()
-            .flush()
-            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
-        let mut input = String::new();
-        std::io::stdin()
-            .read_line(&mut input)
-            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
-        input.trim().to_string()
+        if no_interview {
+            // Try to read from stdin (pipe mode)
+            let piped_input = std::io::read_to_string(&mut std::io::stdin())
+                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+            piped_input.trim().to_string()
+        } else {
+            println!("\n=== SpecGen CLI ===\n");
+            print!("Enter your project idea: ");
+            std::io::stdout()
+                .flush()
+                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+            let mut input = String::new();
+            std::io::stdin()
+                .read_line(&mut input)
+                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+            input.trim().to_string()
+        }
     } else {
         idea
     };
@@ -138,15 +149,17 @@ async fn run_new_command(
         }
     }
 
-    // Confirm domain with user
-    println!("\nIs this correct? (y/n): ");
-    let mut input = String::new();
-    std::io::stdin()
-        .read_line(&mut input)
-        .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
-    let input = input.trim().to_lowercase();
-    if input != "y" && input.is_empty() {
-        domain = Domain::Unknown;
+    // Confirm domain with user (skip in no-interview mode)
+    if !no_interview {
+        println!("\nIs this correct? (y/n): ");
+        let mut input = String::new();
+        std::io::stdin()
+            .read_line(&mut input)
+            .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+        let input = input.trim().to_lowercase();
+        if input != "y" && input.is_empty() {
+            domain = Domain::Unknown;
+        }
     }
 
     println!("\nDomain confirmed: {}\n", domain.display_name());
@@ -155,31 +168,42 @@ async fn run_new_command(
     println!("=== Starting Interview ===\n");
     let mut session = interview::orchestrator::InterviewSession::new(idea.clone(), domain);
 
-    // Run Q/A loop (simplified - in production this would use TUI)
-    while !session.completed {
-        let (current, total) = session.progress();
-        if let Some(question) = session.current_question() {
-            println!("[Question {}/{}] {}\n", current, total, question.text);
-            print!("Answer (or 'skip' to skip): ");
-            std::io::stdout()
-                .flush()
-                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+    // In no-interview mode, skip all questions with assumed answers
+    if no_interview {
+        println!("[Non-interactive mode: AI-assuming all answers]\n");
+        // Collect question IDs first to avoid borrow issues
+        let question_ids: Vec<_> = session.questions.iter().map(|q| q.id).collect();
+        for qid in question_ids {
+            let answer = interview::answers::Answer::assumed(qid, "[ASSUMED]".to_string());
+            let _ = session.submit_answer(answer);
+        }
+    } else {
+        // Run Q/A loop (simplified - in production this would use TUI)
+        while !session.completed {
+            let (current, total) = session.progress();
+            if let Some(question) = session.current_question() {
+                println!("[Question {}/{}] {}\n", current, total, question.text);
+                print!("Answer (or 'skip' to skip): ");
+                std::io::stdout()
+                    .flush()
+                    .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
 
-            let mut input = String::new();
-            std::io::stdin()
-                .read_line(&mut input)
-                .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
-            let input = input.trim().to_string();
+                let mut input = String::new();
+                std::io::stdin()
+                    .read_line(&mut input)
+                    .map_err(|e| error::SpecGenError::IoError(e.to_string()))?;
+                let input = input.trim().to_string();
 
-            if input.is_empty() || input.to_lowercase() == "skip" {
-                // Skip question - mark as assumed
-                let answer = interview::answers::Answer::skipped(question.id);
-                let _ = session.submit_answer(answer);
-            } else {
-                let answer = interview::answers::Answer::new(question.id, input);
-                match session.submit_answer(answer) {
-                    Ok(_) => println!("Answer recorded.\n"),
-                    Err(e) => println!("Invalid answer: {e}\n"),
+                if input.is_empty() || input.to_lowercase() == "skip" {
+                    // Skip question - mark as assumed
+                    let answer = interview::answers::Answer::skipped(question.id);
+                    let _ = session.submit_answer(answer);
+                } else {
+                    let answer = interview::answers::Answer::new(question.id, input);
+                    match session.submit_answer(answer) {
+                        Ok(_) => println!("Answer recorded.\n"),
+                        Err(e) => println!("Invalid answer: {e}\n"),
+                    }
                 }
             }
         }
@@ -461,8 +485,8 @@ async fn main() -> Result<(), error::SpecGenError> {
 
     // Dispatch to command handlers
     match args.command {
-        Command::New { idea } => {
-            run_new_command(idea, client, api_key).await?;
+        Command::New { idea, no_interview } => {
+            run_new_command(idea, client, api_key, no_interview).await?;
         }
         Command::Refine {
             instruction,

@@ -174,9 +174,9 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-13 — Non-interactive / Pipe Mode
 
-- [ ] **Implement --no-interview flag** - Skip interactive interview
-- [ ] **Implement AI-assumed answers** - Mark all answers as [ASSUMED]
-- [ ] **Handle piped input** - Accept idea from stdin
+- [x] **Implement --no-interview flag** - Skip interactive interview
+- [x] **Implement AI-assumed answers** - Mark all answers as [ASSUMED]
+- [x] **Handle piped input** - Accept idea from stdin
 - [ ] **Write E2E tests** - Pipe mode validation
 
 ### F-14 — Verbose Logging
@@ -216,6 +216,8 @@ These tasks must be completed first as other tasks depend on them.
 - [x] **Implement F-12 Export Command** - Implemented export command with TOC generation and metadata block
 - [x] **Implement F-10 Session Persistence** - Session data saved to .specgen/session.json after spec generation
 - [x] **Implement F-08 Iterative Refinement** - refine command with section targeting
+- [x] **Implement F-09 Diff and Merge Engine** - Semantic diff with user-edited preservation and conflict markers
+- [x] **Implement F-13 Pipe Mode** - --no-interview flag and piped input support
 
 ---
 
