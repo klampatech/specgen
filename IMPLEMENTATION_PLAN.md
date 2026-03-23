@@ -2,6 +2,11 @@
 
 This document tracks the implementation of SpecGen CLI against the specifications in `specs/*.md`.
 
+## Project Status
+
+**Current State:** No implementation code exists. The `src/` directory is empty.
+**Goal:** Build a production-ready Rust CLI tool that interviews developers and generates comprehensive specifications.
+
 ## Project Foundation (Prerequisites)
 
 These tasks must be completed first as other tasks depend on them.
