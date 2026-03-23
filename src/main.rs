@@ -6,6 +6,7 @@
 mod api_key;
 mod domain;
 mod error;
+mod interview;
 
 use clap::Parser;
 
