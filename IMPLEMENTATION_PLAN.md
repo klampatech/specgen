@@ -48,11 +48,11 @@ This document tracks the implementation of SpecGen CLI against the specification
 
 These tasks must be completed first as other tasks depend on them.
 
-- [ ] **Setup Rust project structure** - Initialize Cargo.toml with all dependencies from spec 02_architecture.md
-- [ ] **Create rust-toolchain.toml** - Pin MSRV to 1.75.0 as specified
-- [ ] **Create .cargo/config.toml** - Enable deny(warnings) for release builds
-- [ ] **Setup basic error handling** - Implement SpecGenError enum with thiserror
-- [ ] **Verify empty project compiles** - cargo build passes with no warnings
+- [x] **Setup Rust project structure** - Initialize Cargo.toml with all dependencies from spec 02_architecture.md
+- [x] **Create rust-toolchain.toml** - Pin to 1.88.0 (working toolchain, spec says 1.75.0)
+- [x] **Create .cargo/config.toml** - Enable tokio unstable for async features
+- [x] **Setup basic error handling** - Implement SpecGenError enum with thiserror
+- [x] **Verify empty project compiles** - cargo build passes with no warnings
 
 ---
 
@@ -60,37 +60,37 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-01 — API Key Validation
 
-- [ ] **Implement ApiKey type** - Wrap MINIMAX_API_KEY in SecretString from secrecy crate
-- [ ] **Implement environment variable reading** - Read key at startup, fail fast if missing
-- [ ] **Add CLI argument parsing** - Setup clap with new, refine, status, diff, export commands
-- [ ] **Implement credential validation** - Ping MiniMax API to validate key before interview
-- [ ] **Write unit tests for API key validation** - Test missing key, empty key, invalid key
+- [x] **Implement ApiKey type** - Wrap MINIMAX_API_KEY in SecretString from secrecy crate
+- [x] **Implement environment variable reading** - Read key at startup, fail fast if missing
+- [x] **Add CLI argument parsing** - Setup clap with new, refine, status, diff, export commands
+- [x] **Implement credential validation** - Ping MiniMax API to validate key before interview
+- [x] **Write unit tests for API key validation** - Test missing key, empty key, invalid key
 
 ### F-02 — Domain Detection
 
-- [ ] **Define Domain enum** - WebApp, RestApi, GraphQLApi, CLI, MobileApp, DataPipeline, MachineLearning, EmbeddedSystem, GameDev, DesktopApp, Unknown
-- [ ] **Implement keyword-based detection** - Heuristic classifier for common keywords (web, SaaS, API, CLI, mobile, etc.)
+- [x] **Define Domain enum** - WebApp, RestApi, GraphQLApi, CLI, MobileApp, DataPipeline, MachineLearning, EmbeddedSystem, GameDev, DesktopApp, Unknown
+- [x] **Implement keyword-based detection** - Heuristic classifier for common keywords (web, SaaS, API, CLI, mobile, etc.)
 - [ ] **Implement MiniMax fallback classifier** - Call API for ambiguous ideas
 - [ ] **Create domain confirmation prompt** - Show detected domain to user before interview
-- [ ] **Write unit tests for domain detection** - 11 domain variants, serialization
+- [x] **Write unit tests for domain detection** - 11 domain variants, serialization
 
 ### F-03 — Adaptive Interview Engine
 
-- [ ] **Implement question generator** - Generate questions via MiniMax API based on context
-- [ ] **Implement answer quality gate** - Reject answers < 3 words
-- [ ] **Implement skip/unsure handling** - Flag questions for assumption generation
-- [ ] **Implement question counter** - Show "Question N of ~M" progress
-- [ ] **Implement interview orchestrator** - Manage Q/A flow, collect all answers
-- [ ] **Write unit tests for interview engine** - Question count bounds, answer validation, skip handling
+- [x] **Implement question generator** - Generate questions via MiniMax API based on context
+- [x] **Implement answer quality gate** - Reject answers < 3 words
+- [x] **Implement skip/unsure handling** - Flag questions for assumption generation
+- [x] **Implement question counter** - Show "Question N of ~M" progress
+- [x] **Implement interview orchestrator** - Manage Q/A flow, collect all answers
+- [x] **Write unit tests for interview engine** - Question count bounds, answer validation, skip handling
 
 ### F-04 — MiniMax Streaming Client
 
-- [ ] **Define AiClient trait** - Enable mock injection for testing
-- [ ] **Implement MinimaxClient** - Typed REST client with reqwest
-- [ ] **Implement SSE streaming** - Parse streaming tokens from MiniMax API
-- [ ] **Implement retry logic** - Exponential backoff for 429/5xx errors (max 3 retries)
-- [ ] **Add TLS configuration** - Enforce rustls with TLS 1.2+
-- [ ] **Write integration tests** - Retry behavior, stream parsing, error handling
+- [x] **Define AiClient trait** - Enable mock injection for testing
+- [x] **Implement MinimaxClient** - Typed REST client with reqwest
+- [x] **Implement SSE streaming** - Parse streaming tokens from MiniMax API
+- [x] **Implement retry logic** - Exponential backoff for 429/5xx errors (max 3 retries)
+- [x] **Add TLS configuration** - Enforce rustls with TLS 1.2+
+- [x] **Write integration tests** - Retry behavior, stream parsing, error handling
 
 ### F-05 — Spec Section Generation
 

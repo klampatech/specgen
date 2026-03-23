@@ -122,18 +122,22 @@ mod tests {
 
     #[test]
     fn test_read_api_key_empty() {
+        // Clean up any existing value first, then set empty string
+        env::remove_var("MINIMAX_API_KEY");
         env::set_var("MINIMAX_API_KEY", "");
         let result = read_api_key_from_env();
-        assert!(matches!(result, Err(SpecGenError::InvalidApiKey(_))));
         env::remove_var("MINIMAX_API_KEY");
+        assert!(matches!(result, Err(SpecGenError::InvalidApiKey(_))));
     }
 
     #[test]
     fn test_read_api_key_success() {
+        // Clean up any existing value first
+        env::remove_var("MINIMAX_API_KEY");
         env::set_var("MINIMAX_API_KEY", "test_api_key_12345");
         let result = read_api_key_from_env();
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().as_str(), "test_api_key_12345");
+        let key = result.expect("should succeed");
         env::remove_var("MINIMAX_API_KEY");
+        assert_eq!(key.as_str(), "test_api_key_12345");
     }
 }
