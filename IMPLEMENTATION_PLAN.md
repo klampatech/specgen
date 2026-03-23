@@ -70,8 +70,8 @@ These tasks must be completed first as other tasks depend on them.
 
 - [x] **Define Domain enum** - WebApp, RestApi, GraphQLApi, CLI, MobileApp, DataPipeline, MachineLearning, EmbeddedSystem, GameDev, DesktopApp, Unknown
 - [x] **Implement keyword-based detection** - Heuristic classifier for common keywords (web, SaaS, API, CLI, mobile, etc.)
-- [ ] **Implement MiniMax fallback classifier** - Call API for ambiguous ideas
-- [ ] **Create domain confirmation prompt** - Show detected domain to user before interview
+- [x] **Implement MiniMax fallback classifier** - Call API for ambiguous ideas
+- [x] **Create domain confirmation prompt** - Show detected domain to user before interview
 - [x] **Write unit tests for domain detection** - 11 domain variants, serialization
 
 ### F-03 — Adaptive Interview Engine
@@ -110,7 +110,7 @@ These tasks must be completed first as other tasks depend on them.
 ### F-06 — Atomic File Output
 
 - [x] **Implement atomic file writer** - Write to temp file, then rename
-- [ ] **Implement file existence check** - Block if files exist without diff
+- [x] **Implement file existence check** - Block if files exist without diff
 - [x] **Implement Utf8PathBuf usage** - No raw PathBuf in file I/O
 - [x] **Add generation header comment** - Include version and date in each file
 - [x] **Write unit tests** - Atomic writes, path traversal prevention

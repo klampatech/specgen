@@ -3,7 +3,11 @@
 //! This module detects the type of software project based on user input
 //! using keyword-based heuristics and AI fallback.
 
+use crate::ai::client::AiClient;
+use crate::ai::models::{ChatRequest, Message};
+use crate::error::SpecGenError;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 /// Domain types that can be detected for a software project.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -269,6 +273,87 @@ pub fn detect_domain(idea: &str) -> Domain {
 #[allow(dead_code)]
 pub fn needs_ai_fallback(detected: Domain) -> bool {
     detected == Domain::Unknown
+}
+
+/// Detect domain using AI when keyword-based detection is ambiguous.
+///
+/// This is called when `needs_ai_fallback()` returns true. It sends the
+/// project idea to the AI and parses the response to extract a domain.
+pub async fn detect_domain_with_ai(
+    client: Arc<dyn AiClient>,
+    idea: &str,
+) -> Result<Domain, SpecGenError> {
+    let system_prompt = "You are a software domain classifier. Given a project description, \
+identify the most appropriate domain from this list: WebApp, RestApi, GraphQLApi, Cli, \
+MobileApp, DataPipeline, MachineLearning, EmbeddedSystem, GameDev, DesktopApp. \
+Respond ONLY with the domain name, nothing else.";
+
+    let user_prompt = format!("Classify this project: {}", idea);
+
+    let request = ChatRequest::new_spec_request(vec![
+        Message::system(system_prompt),
+        Message::user(user_prompt),
+    ]);
+
+    let response = client.chat(request).await?;
+    parse_ai_domain_response(&response)
+}
+
+/// Prompt user to confirm or change the detected domain.
+///
+/// Returns the final domain (either confirmed or user-selected).
+pub fn confirm_domain(detected: Domain) -> Domain {
+    println!("\nDetected domain: {}", detected.display_name());
+    println!("Is this correct? (y/n): ");
+
+    let mut input = String::new();
+    if std::io::stdin().read_line(&mut input).is_ok() {
+        let input = input.trim().to_lowercase();
+        if input == "y" || input.is_empty() {
+            return detected;
+        }
+    }
+
+    // User said no - return Unknown to trigger domain selection
+    // In a full implementation, this would prompt for domain selection
+    println!("Please specify the domain manually (or we'll use Unknown).");
+    Domain::Unknown
+}
+
+/// Parse the AI response to extract the domain enum value.
+fn parse_ai_domain_response(response: &str) -> Result<Domain, SpecGenError> {
+    let response = response.trim();
+
+    // Try to match the response to a known domain
+    match response {
+        s if s.eq_ignore_ascii_case("webapp") => Ok(Domain::WebApp),
+        s if s.eq_ignore_ascii_case("restapi") => Ok(Domain::RestApi),
+        s if s.eq_ignore_ascii_case("graphqlapi") || s.eq_ignore_ascii_case("graphql") => {
+            Ok(Domain::GraphQLApi)
+        }
+        s if s.eq_ignore_ascii_case("cli") || s.eq_ignore_ascii_case("command-line") => {
+            Ok(Domain::Cli)
+        }
+        s if s.eq_ignore_ascii_case("mobileapp") || s.eq_ignore_ascii_case("mobile") => {
+            Ok(Domain::MobileApp)
+        }
+        s if s.eq_ignore_ascii_case("datapipeline") || s.eq_ignore_ascii_case("data pipeline") => {
+            Ok(Domain::DataPipeline)
+        }
+        s if s.eq_ignore_ascii_case("machinelearning") || s.eq_ignore_ascii_case("ml") => {
+            Ok(Domain::MachineLearning)
+        }
+        s if s.eq_ignore_ascii_case("embeddedsystem") || s.eq_ignore_ascii_case("embedded") => {
+            Ok(Domain::EmbeddedSystem)
+        }
+        s if s.eq_ignore_ascii_case("gamedev") || s.eq_ignore_ascii_case("game") => {
+            Ok(Domain::GameDev)
+        }
+        s if s.eq_ignore_ascii_case("desktopapp") || s.eq_ignore_ascii_case("desktop") => {
+            Ok(Domain::DesktopApp)
+        }
+        _ => Ok(Domain::Unknown),
+    }
 }
 
 #[cfg(test)]

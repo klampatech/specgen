@@ -52,6 +52,14 @@ pub enum SpecGenError {
     #[error("File I/O error: {0}")]
     IoError(String),
 
+    /// File already exists.
+    #[error("File already exists: {0}")]
+    FileExists(String),
+
+    /// Invalid file path.
+    #[error("Invalid path: {0}")]
+    InvalidPath(String),
+
     /// Session error.
     #[error("Session error: {0}")]
     SessionError(String),

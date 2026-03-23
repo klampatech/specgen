@@ -5,6 +5,10 @@
 #![allow(dead_code)]
 #![allow(clippy::uninlined_format_args)]
 
+mod output;
+
+pub use output::{get_default_output_dir, write_all_sections, write_spec_file};
+
 use crate::ai::client::AiClient;
 use crate::ai::models::{ChatRequest, Message};
 use crate::domain::Domain;
