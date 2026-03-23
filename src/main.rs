@@ -5,9 +5,13 @@
 
 mod ai;
 mod api_key;
+mod diff;
 mod domain;
 mod error;
 mod interview;
+mod session;
+mod spec;
+mod ui;
 
 use clap::Parser;
 

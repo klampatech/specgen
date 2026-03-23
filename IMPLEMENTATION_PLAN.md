@@ -94,26 +94,26 @@ These tasks must be completed first as other tasks depend on them.
 
 ### F-05 — Spec Section Generation
 
-- [ ] **Implement spec module orchestration** - Dispatch 10 concurrent generation tasks
-- [ ] **Implement requirements.md generator** - System prompt + context → Markdown
-- [ ] **Implement architecture.md generator** - Include tech stack recommendation table
-- [ ] **Implement features.md generator** - Per-feature software requirements
-- [ ] **Implement tdd_strategy.md generator** - Test-first plan with example stubs
-- [ ] **Implement sequence_diagrams.md generator** - Mermaid syntax with descriptive names
-- [ ] **Implement design_scheme.md generator** - UI/UX conventions
-- [ ] **Implement security_strategy.md generator** - Threat model table
-- [ ] **Implement sdlc.md generator** - CI/CD pipeline, branching
-- [ ] **Implement acceptance_criteria.md generator** - Derived from TDD strategy
-- [ ] **Implement testing_strategy.md generator** - Test pyramid, tools
-- [ ] **Write integration tests** - All sections generated correctly, concurrent generation
+- [x] **Implement spec module orchestration** - Dispatch 10 concurrent generation tasks
+- [x] **Implement requirements.md generator** - System prompt + context → Markdown
+- [x] **Implement architecture.md generator** - Include tech stack recommendation table
+- [x] **Implement features.md generator** - Per-feature software requirements
+- [x] **Implement tdd_strategy.md generator** - Test-first plan with example stubs
+- [x] **Implement sequence_diagrams.md generator** - Mermaid syntax with descriptive names
+- [x] **Implement design_scheme.md generator** - UI/UX conventions
+- [x] **Implement security_strategy.md generator** - Threat model table
+- [x] **Implement sdlc.md generator** - CI/CD pipeline, branching
+- [x] **Implement acceptance_criteria.md generator** - Derived from TDD strategy
+- [x] **Implement testing_strategy.md generator** - Test pyramid, tools
+- [x] **Write integration tests** - All sections generated correctly, concurrent generation
 
 ### F-06 — Atomic File Output
 
-- [ ] **Implement atomic file writer** - Write to temp file, then rename
+- [x] **Implement atomic file writer** - Write to temp file, then rename
 - [ ] **Implement file existence check** - Block if files exist without diff
-- [ ] **Implement Utf8PathBuf usage** - No raw PathBuf in file I/O
-- [ ] **Add generation header comment** - Include version and date in each file
-- [ ] **Write unit tests** - Atomic writes, path traversal prevention
+- [x] **Implement Utf8PathBuf usage** - No raw PathBuf in file I/O
+- [x] **Add generation header comment** - Include version and date in each file
+- [x] **Write unit tests** - Atomic writes, path traversal prevention
 
 ---
 

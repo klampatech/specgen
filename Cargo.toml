@@ -44,6 +44,12 @@ secrecy = "0.8"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
+# Time handling
+chrono = "0.4"
+
+# Terminal detection
+atty = "0.2"
+
 # Async traits
 async-trait = "0.1"
 
