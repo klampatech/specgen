@@ -8,9 +8,11 @@ This document tracks the implementation of SpecGen CLI against the specification
 **Goal:** Build a production-ready Rust CLI tool that interviews developers and generates comprehensive specifications.
 **Last Updated:** 2026-03-23
 
+---
+
 ## Analysis Summary
 
-**Specification Gap Analysis (2026-03-23):**
+### Specification Gap Analysis (2026-03-23)
 
 | Spec Section | Contents | Implementation Status |
 |--------------|----------|----------------------|
@@ -25,19 +27,22 @@ This document tracks the implementation of SpecGen CLI against the specification
 | 09_acceptance_criteria.md | AC-01 to AC-14 acceptance criteria | Complete - 170+ criteria defined |
 | 10_testing_strategy.md | Test pyramid, 275 tests target | Complete - testing strategy defined |
 
-**Codebase Status:**
+### Codebase Status
+
 - No Rust source files exist (`src/` directory is empty)
 - No test files exist (`tests/` directory is empty)
 - No Cargo.toml or project configuration exists
 - Git repository initialized with only specs/ tracked
 
-**Prioritization Recommendation:**
+### Prioritization
 
 1. **Foundation First** - Setup Rust project with dependencies (blocks all implementation)
 2. **P0 Features** - Core functionality: API key, domain detection, interview, MiniMax client, spec generation, atomic file output
 3. **P1 Features** - UI and refinement: Ratatui UI, diff/merge, session persistence
 4. **P2 Features** - Nice to have: status, export, pipe mode, logging
 5. **CI/CD** - Setup after core features work
+
+---
 
 ## Project Foundation (Prerequisites)
 
@@ -48,6 +53,8 @@ These tasks must be completed first as other tasks depend on them.
 - [ ] **Create .cargo/config.toml** - Enable deny(warnings) for release builds
 - [ ] **Setup basic error handling** - Implement SpecGenError enum with thiserror
 - [ ] **Verify empty project compiles** - cargo build passes with no warnings
+
+---
 
 ## Core P0 Features (Must Implement First)
 
@@ -108,6 +115,8 @@ These tasks must be completed first as other tasks depend on them.
 - [ ] **Add generation header comment** - Include version and date in each file
 - [ ] **Write unit tests** - Atomic writes, path traversal prevention
 
+---
+
 ## P1 Features (Important)
 
 ### F-07 — Ratatui Rich UI
@@ -145,6 +154,8 @@ These tasks must be completed first as other tasks depend on them.
 - [ ] **Implement schema migration** - Handle version upgrades
 - [ ] **Write integration tests** - Persistence, resume, corruption handling
 
+---
+
 ## P2 Features (Nice to Have)
 
 ### F-11 — Status Command
@@ -176,12 +187,16 @@ These tasks must be completed first as other tasks depend on them.
 - [ ] **Ensure API key never logged** - Redact in all code paths
 - [ ] **Write integration tests** - Log output validation
 
+---
+
 ## CI/CD & DevOps
 
 - [ ] **Create .github/workflows/ci.yml** - PR pipeline with test, clippy, fmt, audit
 - [ ] **Create .github/workflows/release.yml** - Release pipeline with cross-compile
 - [ ] **Setup cargo-llvm-cov** - Coverage gate (80% line, 70% branch)
 - [ ] **Setup cargo-audit** - Security scanning in CI
+
+---
 
 ## Testing Infrastructure
 
@@ -190,13 +205,16 @@ These tasks must be completed first as other tasks depend on them.
 - [ ] **Setup insta** - Snapshot testing
 - [ ] **Setup proptest** - Property-based testing
 
-## In Progress
-
-<!-- Tasks currently being worked on -->
+---
 
 ## Completed
 
-<!-- Completed tasks (can be periodically cleaned out) -->
 - [x] **Analyze all specification files** - Reviewed 10 spec documents and created gap analysis
 - [x] **Explore current codebase** - Verified src/ and tests/ are empty
 - [x] **Update IMPLEMENTATION_PLAN.md** - Added analysis summary and prioritization
+
+---
+
+## In Progress
+
+<!-- Tasks currently being worked on -->
